@@ -3,11 +3,18 @@ const subProcess = require('child_process')
   performance
 } = require('perf_hooks');
 subProcess.exec('wat2wasm.exe  program.wat ', (err, stdout, stderr) => {
-require("webassembly")
-  .load("program.wasm")
-  .then(module => {
+const fs = require('fs');
+const wasmBuffer = fs.readFileSync('program.wasm');
+	WebAssembly.instantiate(wasmBuffer).then(module => {
+  // Exported function live under instance.exports
+	//const memory = module.instance.exports.memory;
+    // store 30 at the beginning of memory
+	const encoder = new TextEncoder();
+	const encoded = encoder.encode('mio');
+//	const buffer = new Uint8Array(memory.buffer)
+	//buffer.set(encoded)
     let a = performance.now();
-    let r = module.exports.main(5,6);
+    let r = module.instance.exports.main();
     let b = performance.now();
 	console.log(r);
     console.log(b-a);	
@@ -20,3 +27,4 @@ require("webassembly")
     console.log(`The stderr Buffer from shell: ${stderr.toString()}`)
   }
 })
+
